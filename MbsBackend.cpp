@@ -39,7 +39,8 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 	std::string body;
 
 	if (req.method() == http::verb::get) {
-		std::string target = req.target();
+		//std::string target = req.target();
+		std::string target(req.target().begin(), req.target().end());
 		size_t pos = target.find('?');
 		if (pos != std::string::npos) {
 			std::string query = target.substr(pos + 1);
