@@ -20,3 +20,4 @@ std::string adminDel(std::map<std::string, std::string> params);
 std::string addMovie(std::map<std::string, std::string> params);
 std::string delMovie(std::map<std::string, std::string> params);
 std::string accDetails(std::map<std::string, std::string> params);
+std::string listMovies(std::map<std::string, std::string> params);

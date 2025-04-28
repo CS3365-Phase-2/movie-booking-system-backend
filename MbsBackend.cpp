@@ -69,6 +69,8 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 					body = delMovie(params);
 				} else if(params["action"] == "accdetails") {
 					body = accDetails(params);
+				} else if(params["action"] == "listmovies") {
+					body = listMovies(params);
 				} else {
 					body = "{\"message\": \"INVALID ACTION: " + params["action"] + "\"}";
 				}
@@ -339,6 +341,18 @@ std::string delMovie(std::map<std::string, std::string> params) {
  * - Payment information
  */
 std::string accDetails(std::map<std::string, std::string> params) {
+	return("i");
+}
+
+/*
+ * Returns:
+ * - Movie name
+ * - Movie ID
+ * - Showtime
+ * - Rating
+ * - Price
+ */
+std::string listMovies(std::map<std::string, std::string> params) {
 	return("i");
 }
 
