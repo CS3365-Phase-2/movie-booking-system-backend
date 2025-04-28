@@ -39,10 +39,9 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 	std::string body;
 
 	if (req.method() == http::verb::get) {
-		//std::string target = req.target();
 		std::string target(req.target().begin(), req.target().end());
 		size_t pos = target.find('?');
-		if (pos != std::string::npos) {
+		/*if (pos != std::string::npos) {
 			std::string query = target.substr(pos + 1);
 			auto params = parseQuery(query);
 
@@ -53,6 +52,45 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 			}
 		} else {
 			body = "{\"message\": \"INVALID AUTH\"}";
+		}*/
+
+		if (pos != std::string::npos) {
+			std::string query = target.substr(pos + 1);
+			auto params = parseQuery(query);
+
+			if(params.find("action") != params.end()) {
+				if(params["action"] == "createacc") {
+
+				} else if(params["action"] == "delacc") {
+					std::cout << "g";
+				} else if(params["action"] == "buyticket") {
+					std::cout << "f";
+				} else if(params["action"] == "getticket") {
+					std::cout << "e";
+				} else if(params["action"] == "adminadd") {
+					std::cout << "d";
+				} else if(params["action"] == "admindel") {
+					std::cout << "c";
+				} else if(params["action"] == "addmovie") {
+					std::cout << "b";
+				} else if(params["action"] == "delmovie") {
+					std::cout << "a";
+				} else {
+					body = "{\"message\": \"INVALID ACTION: " + params["action"] + "\"}";
+				}
+			} else {
+				body = "{\"message\": \"err: NO ACTION\"}";
+			}
+		}
+
+
+
+
+		std::string userAgent(req[http::field::user_agent].begin(), req[http::field::user_agent].end());
+		if (userAgent.find("Mozilla") != std::string::npos ||
+			userAgent.find("Chrome") != std::string::npos ||
+			userAgent.find("Safari") != std::string::npos) {
+			body = "Welcome to the MbsBackend Server. Go to the documentation to know how to use this.";
 		}
 
 		res.result(http::status::ok);
@@ -66,12 +104,6 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 
 	res.prepare_payload();
 }
-
-
-
-
-
-
 
 
 //################################################
