@@ -10,4 +10,7 @@ ${TARGET}: $(OBJ)
 	$(CC) -o $(TARGET) $(SRC) -lsqlite3
 
 clean:
+	rm -f $(TARGET) $(OBJ)
+
+hard-clean:
 	rm -f $(TARGET) $(OBJ) movie_ticket_system.db
