@@ -230,7 +230,24 @@ int sqLiteInitialize() {
  * - Account ID (?)
  */
 std::string createAcc(std::map<std::string, std::string> params) {
-	return("a");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	if(rc) {
+		sqlite3_close(db);
+		return("{\"request\": \"1\",\"message\": \"Unable to open database.\"}");
+	}
+
+	try {
+
+	} catch (const std::exception& exception) {
+
+		return("{\"request\": \"1\",\"message\":\"Unknown Failure.\"}");
+	}
+
+	sqlite3_close(db);
+	// "request: 0" means it passed successfully
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -242,7 +259,11 @@ std::string createAcc(std::map<std::string, std::string> params) {
  * - Fail/Success
  */
 std::string deleteAcc(std::map<std::string, std::string> params) {
-	return("b");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -258,7 +279,11 @@ std::string deleteAcc(std::map<std::string, std::string> params) {
  * - Ticket ID(s)
  */
 std::string buyTicket(std::map<std::string, std::string> params) {
-	return("c");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -271,7 +296,11 @@ std::string buyTicket(std::map<std::string, std::string> params) {
  * - Ticket information
  */
 std::string getTicket(std::map<std::string, std::string> params) {
-	return("d");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -284,7 +313,11 @@ std::string getTicket(std::map<std::string, std::string> params) {
  * - Fail/Success
  */
 std::string adminAdd(std::map<std::string, std::string> params) {
-	return("e");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -297,7 +330,11 @@ std::string adminAdd(std::map<std::string, std::string> params) {
  * - Fail/Success
  */
 std::string adminDel(std::map<std::string, std::string> params) {
-	return("f");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -314,7 +351,11 @@ std::string adminDel(std::map<std::string, std::string> params) {
  * - Movie ID
  */
 std::string addMovie(std::map<std::string, std::string> params) {
-	return("g");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -327,7 +368,11 @@ std::string addMovie(std::map<std::string, std::string> params) {
  * - Fail/Success
  */
 std::string delMovie(std::map<std::string, std::string> params) {
-	return("h");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -338,10 +383,15 @@ std::string delMovie(std::map<std::string, std::string> params) {
  * Returns:
  * - Fail/Success
  * - Account ID
- * - Payment information
+ * - Payment information (?)
+ * - Admin status
  */
 std::string accDetails(std::map<std::string, std::string> params) {
-	return("i");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 /*
@@ -353,7 +403,11 @@ std::string accDetails(std::map<std::string, std::string> params) {
  * - Price
  */
 std::string listMovies(std::map<std::string, std::string> params) {
-	return("i");
+	sqlite3 *db;
+	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	sqlite3_close(db);
+	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
 
 //################################################
