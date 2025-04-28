@@ -6,7 +6,8 @@ OBJ 	= ${SRC:.cpp=.o}
 all: $(TARGET)
 
 ${TARGET}: $(OBJ)
-	$(CC) ${CPPFLAGS} ${CFLAGS} -o $@ -lsqlite3 $(OBJ)
+	$(CC) -c $(SRC)
+        $(CC) -o $(TARGET) $(SRC) -lsqlite3
 
 clean:
 	rm -f $(TARGET) $(OBJ)
