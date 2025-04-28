@@ -1,13 +1,5 @@
-#include "MbsBackend.h"
 #include "Util.cpp"
-
-//################################################
-// we will be using boost::beast for the webapi (no websockets used)
-
-namespace beast = boost::beast;
-namespace http = beast::http;
-namespace asio = boost::asio;
-using tcp = asio::ip::tcp;
+#include "MbsBackend.h"
 
 //################################################
 // handling requests
@@ -59,22 +51,24 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 			auto params = parseQuery(query);
 
 			if(params.find("action") != params.end()) {
-				if(params["action"] == "createacc") {
-
+				if(params["action"] == "createacc") { // for note: be sure to add inputs to the below functions. we need the info. we can even use a "try" doohickey.
+					body = createAcc();
 				} else if(params["action"] == "delacc") {
-					std::cout << "g";
+					body = deleteAcc();
 				} else if(params["action"] == "buyticket") {
-					std::cout << "f";
+					body = buyTicket();
 				} else if(params["action"] == "getticket") {
-					std::cout << "e";
+					body = getTicket();
 				} else if(params["action"] == "adminadd") {
-					std::cout << "d";
+					body = adminAdd();
 				} else if(params["action"] == "admindel") {
-					std::cout << "c";
+					body = adminDel();
 				} else if(params["action"] == "addmovie") {
-					std::cout << "b";
+					body = addMovie();
 				} else if(params["action"] == "delmovie") {
-					std::cout << "a";
+					body = delMovie();
+				} else if(params["action"] == "accdetails") {
+					body = accDetails();
 				} else {
 					body = "{\"message\": \"INVALID ACTION: " + params["action"] + "\"}";
 				}
@@ -223,44 +217,33 @@ int sqLiteInitialize() {
 //################################################
 // database addition
 
-/*int sqlAddUser(sqlite3* db, const std::string& name, const std::string& email, const std::string& hashedPassword) {
-	std::string sql = "INSERT INTO Users (name, email, password, paymentDetails) VALUES (?, ?, ?, ?);";
-	sqlite3_stmt* stmt;
-
-	return(0);
+std::string createAcc() {
+	return("a");
 }
-
-int sqlDelUser(sqlite3* db, const std::string& name, const std::string& email, const std::string& hashedPassword) {
-	std::string sql = "SELECT password FROM Users WHERE email = ?;";
-	sqlite3_stmt* stmt;
-
-	return(0);
+std::string deleteAcc() {
+	return("b");
 }
-*/
-
-
-/*
-int sqlAddAdmin() {
-
+std::string buyTicket() {
+	return("c");
 }
-
-int sqlDelAdmin() {
-
+std::string getTicket() {
+	return("d");
 }
-
-int sqlAddMovie() {
-
+std::string adminAdd() {
+	return("e");
 }
-
-int sqlDelMovie() {
-
+std::string adminDel() {
+	return("f");
 }
-
-int sqlBuyTickets() {
-
+std::string addMovie() {
+	return("g");
 }
-*/
-
+std::string delMovie() {
+	return("h");
+}
+std::string accDetails() {
+	return("i");
+}
 
 //################################################
 int main(int argc, char* argv[]) {
