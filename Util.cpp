@@ -3,6 +3,9 @@
 #include <boost/beast/http.hpp>
 #include <boost/asio.hpp>
 
+#include <bits/stdc++.h>
+
+#include <map>
 #include <cstdlib>
 #include <iostream>
 #include <memory>

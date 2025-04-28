@@ -12,14 +12,51 @@ using tcp = asio::ip::tcp;
 //################################################
 // handling requests
 
+std::map<std::string, std::string> parseQuery(const std::string& query) {
+	std::map<std::string, std::string> params;
+	std::stringstream ss(query);
+	std::string item;
+
+	while (std::getline(ss, item, '&')) {
+		size_t pos = item.find('=');
+		if (pos != std::string::npos) {
+			std::string key = item.substr(0, pos);
+			std::string value = item.substr(pos + 1);
+			params[key] = value;
+		}
+	}
+
+	return params;
+}
+
+
 void handleRequest(http::request<http::string_body> req, http::response<http::string_body>& res) {
+	// response version
 	res.version(req.version());
+	// keep-alive settings
 	res.keep_alive(req.keep_alive());
 
-	if (req.method() == http::verb::get && req.target() == "/") {
+	std::string body;
+
+	if (req.method() == http::verb::get) {
+		std::string target = req.target();
+		size_t pos = target.find('?');
+		if (pos != std::string::npos) {
+			std::string query = target.substr(pos + 1);
+			auto params = parseQuery(query);
+
+			if(params.find("a") != params.end()) {
+				body = "{\"message\": \"" + params["a"] + "\"}";
+			} else {
+				body = "{\"message\": \"INVALID AUTH\"}";
+			}
+		} else {
+			body = "{\"message\": \"INVALID AUTH\"}";
+		}
+
 		res.result(http::status::ok);
-		res.set(http::field::content_type, "text/plain");
-		res.body() = "Welcome to MbsBackend! If you are seeing this, you shouldn't be here. Go back to the app! Read the documentation for more information.";
+		res.set(http::field::content_type, "application/json");
+		res.body() = body;		
 	} else {
 		res.result(http::status::not_found);
 		res.set(http::field::content_type, "text/plain");
@@ -28,6 +65,13 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 
 	res.prepare_payload();
 }
+
+
+
+
+
+
+
 
 //################################################
 // database preparation and configuration
@@ -51,7 +95,7 @@ bool sqLiteExecute(sqlite3 *db, const std::string &sql) {
 	return(true);
 }
 
-int sqLiteConnect() {
+int sqLiteInitialize() {
 	sqlite3 *db;
 
 	int rc = sqlite3_open("movie_ticket_system.db", &db);
@@ -146,8 +190,43 @@ int sqLiteConnect() {
 //################################################
 // database addition
 
+/*int sqlAddUser(sqlite3* db, const std::string& name, const std::string& email, const std::string& hashedPassword) {
+	std::string sql = "INSERT INTO Users (name, email, password, paymentDetails) VALUES (?, ?, ?, ?);";
+	sqlite3_stmt* stmt;
+
+	return(0);
+}
+
+int sqlDelUser(sqlite3* db, const std::string& name, const std::string& email, const std::string& hashedPassword) {
+	std::string sql = "SELECT password FROM Users WHERE email = ?;";
+	sqlite3_stmt* stmt;
+
+	return(0);
+}
+*/
 
 
+/*
+int sqlAddAdmin() {
+
+}
+
+int sqlDelAdmin() {
+
+}
+
+int sqlAddMovie() {
+
+}
+
+int sqlDelMovie() {
+
+}
+
+int sqlBuyTickets() {
+
+}
+*/
 
 
 //################################################
@@ -155,8 +234,13 @@ int main(int argc, char* argv[]) {
 	
 
 
-	/*try {
+	try {
 		asio::io_context ioc;
+
+		if(!sqLiteInitialize) {
+			std::cout << "sqLite Database failed to initialize";
+			return(2);
+		}
 
 		tcp::acceptor acceptor(ioc, {tcp::v4(), 4444});
 		std::cout << "Server listening on http://localhost:4444/\n";
@@ -179,5 +263,5 @@ int main(int argc, char* argv[]) {
 		return(1);
 	}
 	return(0);
-	*/
+	
 }
