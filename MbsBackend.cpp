@@ -52,23 +52,23 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 
 			if(params.find("action") != params.end()) {
 				if(params["action"] == "createacc") { // for note: be sure to add inputs to the below functions. we need the info. we can even use a "try" doohickey.
-					body = createAcc();
+					body = createAcc(params);
 				} else if(params["action"] == "delacc") {
-					body = deleteAcc();
+					body = deleteAcc(params);
 				} else if(params["action"] == "buyticket") {
-					body = buyTicket();
+					body = buyTicket(params);
 				} else if(params["action"] == "getticket") {
-					body = getTicket();
+					body = getTicket(params);
 				} else if(params["action"] == "adminadd") {
-					body = adminAdd();
+					body = adminAdd(params);
 				} else if(params["action"] == "admindel") {
-					body = adminDel();
+					body = adminDel(params);
 				} else if(params["action"] == "addmovie") {
-					body = addMovie();
+					body = addMovie(params);
 				} else if(params["action"] == "delmovie") {
-					body = delMovie();
+					body = delMovie(params);
 				} else if(params["action"] == "accdetails") {
-					body = accDetails();
+					body = accDetails(params);
 				} else {
 					body = "{\"message\": \"INVALID ACTION: " + params["action"] + "\"}";
 				}
@@ -217,31 +217,128 @@ int sqLiteInitialize() {
 //################################################
 // database addition
 
-std::string createAcc() {
+/*
+ * Requirements:
+ * - Email
+ * - Hashed Password
+ * - Username
+ *
+ * Returns:
+ * - Fail/Success
+ * - Account ID (?)
+ */
+std::string createAcc(std::map<std::string, std::string> params) {
 	return("a");
 }
-std::string deleteAcc() {
+
+/*
+ * Requirements:
+ * - Email
+ * - Hashed Password
+ *
+ * Returns:
+ * - Fail/Success
+ */
+std::string deleteAcc(std::map<std::string, std::string> params) {
 	return("b");
 }
-std::string buyTicket() {
+
+/*
+ * Requirements:
+ * - Email
+ * - Hashed Password
+ * - Payment info (?)
+ * - Ticket amount
+ * - Movie ID
+ *
+ * Returns:
+ * - Fail/Success
+ * - Ticket ID(s)
+ */
+std::string buyTicket(std::map<std::string, std::string> params) {
 	return("c");
 }
-std::string getTicket() {
+
+/*
+ * Requirements:
+ * - Email
+ * - Hashed Password
+ *
+ * Returns:
+ * - Fail/Success
+ * - Ticket information
+ */
+std::string getTicket(std::map<std::string, std::string> params) {
 	return("d");
 }
-std::string adminAdd() {
+
+/*
+ * Requirements:
+ * - Email (w. admin status)
+ * - Target email
+ * - Hashed Password
+ *
+ * Returns:
+ * - Fail/Success
+ */
+std::string adminAdd(std::map<std::string, std::string> params) {
 	return("e");
 }
-std::string adminDel() {
+
+/*
+ * Requirements:
+ * - Email (w. admin status)
+ * - Target email
+ * - Hashed Password
+ *
+ * Returns:
+ * - Fail/Success
+ */
+std::string adminDel(std::map<std::string, std::string> params) {
 	return("f");
 }
-std::string addMovie() {
+
+/*
+ * Requirements:
+ * - Email (w. admin status)
+ * - Hashed Password
+ * - Movie name
+ * - Showtime
+ * - Price
+ * - Rating
+ *
+ * Returns:
+ * - Fail/Success
+ * - Movie ID
+ */
+std::string addMovie(std::map<std::string, std::string> params) {
 	return("g");
 }
-std::string delMovie() {
+
+/*
+ * Requirements:
+ * - Email (w. admin status)
+ * - Hashed Password
+ * - Movie ID
+ *
+ * Returns:
+ * - Fail/Success
+ */
+std::string delMovie(std::map<std::string, std::string> params) {
 	return("h");
 }
-std::string accDetails() {
+
+/*
+ * Requirements:
+ * - Email (w. admin status)
+ * - Hashed Password
+ *
+ * Returns:
+ * - Fail/Success
+ * - Account ID
+ * - Payment information
+ */
+std::string accDetails(std::map<std::string, std::string> params) {
 	return("i");
 }
 
@@ -253,9 +350,9 @@ int main(int argc, char* argv[]) {
 	try {
 		asio::io_context ioc;
 
-		if(!sqLiteInitialize) {
-			std::cout << "sqLite Database failed to initialize";
-			return(2);
+		int sqlData = sqLiteInitialize();
+		if(sqlData == 1) {
+			return(1);
 		}
 
 		tcp::acceptor acceptor(ioc, {tcp::v4(), 4444});
