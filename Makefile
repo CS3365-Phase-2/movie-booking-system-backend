@@ -7,7 +7,7 @@ all: $(TARGET)
 
 ${TARGET}: $(OBJ)
 	$(CC) -c $(SRC)
-        $(CC) -o $(TARGET) $(SRC) -lsqlite3
+	$(CC) -o $(TARGET) $(SRC) -lsqlite3
 
 clean:
 	rm -f $(TARGET) $(OBJ)
