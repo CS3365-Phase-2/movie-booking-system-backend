@@ -70,7 +70,7 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 		if (userAgent.find("Mozilla") != std::string::npos ||
 			userAgent.find("Chrome") != std::string::npos ||
 			userAgent.find("Safari") != std::string::npos) {
-			body = "Welcome to the MbsBackend Server. Go to the documentation to know how to use this.";
+			body = "{\"request\": \"1\", \"message\": \"Get the hell out of the browser loser.\"}";
 		}
 		res.result(http::status::ok);
 		res.set(http::field::content_type, "application/json");
@@ -414,9 +414,6 @@ std::string listMovies(std::map<std::string, std::string> params) {
 
 //################################################
 int main(int argc, char* argv[]) {
-	
-
-
 	try {
 		asio::io_context ioc;
 
