@@ -33,25 +33,13 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 	if (req.method() == http::verb::get) {
 		std::string target(req.target().begin(), req.target().end());
 		size_t pos = target.find('?');
-		/*if (pos != std::string::npos) {
-			std::string query = target.substr(pos + 1);
-			auto params = parseQuery(query);
-
-			if(params.find("a") != params.end()) {
-				body = "{\"message\": \"" + params["a"] + "\"}";
-			} else {
-				body = "{\"message\": \"INVALID AUTH\"}";
-			}
-		} else {
-			body = "{\"message\": \"INVALID AUTH\"}";
-		}*/
 
 		if (pos != std::string::npos) {
 			std::string query = target.substr(pos + 1);
 			auto params = parseQuery(query);
 
 			if(params.find("action") != params.end()) {
-				if(params["action"] == "createacc") { // for note: be sure to add inputs to the below functions. we need the info. we can even use a "try" doohickey.
+				if(params["action"] == "createacc") {
 					body = createAcc(params);
 				} else if(params["action"] == "delacc") {
 					body = deleteAcc(params);
@@ -78,17 +66,12 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 				body = "{\"message\": \"err: NO ACTION\"}";
 			}
 		}
-
-
-
-
 		std::string userAgent(req[http::field::user_agent].begin(), req[http::field::user_agent].end());
 		if (userAgent.find("Mozilla") != std::string::npos ||
 			userAgent.find("Chrome") != std::string::npos ||
 			userAgent.find("Safari") != std::string::npos) {
 			body = "Welcome to the MbsBackend Server. Go to the documentation to know how to use this.";
 		}
-
 		res.result(http::status::ok);
 		res.set(http::field::content_type, "application/json");
 		res.body() = body;		
@@ -97,7 +80,6 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 		res.set(http::field::content_type, "text/plain");
 		res.body() = "Not found";
 	}
-
 	res.prepare_payload();
 }
 
@@ -126,7 +108,6 @@ bool sqLiteExecute(sqlite3 *db, const std::string &sql) {
 
 int sqLiteInitialize() {
 	sqlite3 *db;
-
 	int rc = sqlite3_open("movie_ticket_system.db", &db);
 	if (rc) {
 		std::cerr << "Can't open database: " << sqlite3_errmsg(db) << "\n";
@@ -134,7 +115,7 @@ int sqLiteInitialize() {
 	} else {
 		std::cout << "Opened database successfully\n";
 	}
-	
+
 	/*
 	 * Users:
 	 * - id (increases per user)
@@ -231,24 +212,45 @@ int sqLiteInitialize() {
  */
 std::string createAcc(std::map<std::string, std::string> params) {
 	sqlite3 *db;
-	int rc = sqlite3_open("movie_ticket_system.db", &db);
 
-	if(rc) {
+	if (sqlite3_open("movie_ticket_system.db", &db)) { //try to open the database
 		sqlite3_close(db);
-		return("{\"request\": \"1\",\"message\": \"Unable to open database.\"}");
+		return "{\"request\": \"1\", \"message\": \"Unable to open database.\"}"; // if fails, returns error
 	}
 
-	try {
-
-	} catch (const std::exception& exception) {
-
-		return("{\"request\": \"1\",\"message\":\"Unknown Failure.\"}");
+	// check required fields. look above, for example
+	if (params.count("email") == 0 || params.count("password") == 0 || params.count("name") == 0) { // if ANY of these dont exist, returns error
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\',\'password\', and \'name\'\"}";
 	}
 
+	// had to learn sqlite for this.
+	std::string sql = "INSERT INTO Users (name, email, password, payment_details) VALUES (?, ?, ?, ?);";
+	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
+
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(stmt, 1, params["name"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 2, params["email"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 3, params["password"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 4, params.count("payment_details") ? params["payment_details"].c_str() : nullptr, -1, SQLITE_TRANSIENT);
+
+	std::string result;
+	if (sqlite3_step(stmt) == SQLITE_DONE) {
+		int user_id = sqlite3_last_insert_rowid(db);
+		result = "{\"request\": \"0\", \"message\": \"Success!\", \"user_id\": \"" + std::to_string(user_id) + "\"}";
+	} else {
+		result = "{\"request\": \"1\", \"message\": \"Failed to create account.\"}";
+	}
+
+	sqlite3_finalize(stmt);
 	sqlite3_close(db);
-	// "request: 0" means it passed successfully
-	return("{\"request\": \"0\",\"message\":\"Success!\"}");
+	return result;
 }
+
 
 /*
  * Requirements:

@@ -13,6 +13,7 @@ There are multiple different "actions" that can be used from the URL (for the av
 - deleteacc (to delete an account)
 - buyticket (to buy a ticket)
 - getticket (to get the tickets bought)
+- listmovies (to show the list of movies available)
 
 For admins, there are a few other "actions" that can also be used:
 - adminadd (adds admin role to a user)
