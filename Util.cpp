@@ -11,6 +11,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <ctime>
 
 #include <sqlite3.h>
 

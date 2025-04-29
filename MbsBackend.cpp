@@ -1,4 +1,8 @@
 #include "Util.cpp"
+#include <cstdio>
+#include <cstdlib>
+#include <sqlite3.h>
+#include <string>
 #include "MbsBackend.h"
 
 //################################################
@@ -264,6 +268,35 @@ std::string deleteAcc(std::map<std::string, std::string> params) {
 	sqlite3 *db;
 	int rc = sqlite3_open("movie_ticket_system.db", &db);
 
+	// check required fields. look above, for example
+	if (params.count("email") == 0 || params.count("password") == 0) { // if ANY of these dont exist, returns error
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\' and \'password\'\"}";
+	}
+
+	// had to learn sqlite for this.
+	std::string sql = "DELETE FROM Users WHERE ? = email AND ? = password";
+	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
+
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(stmt, 1, params["email"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 2, params["password"].c_str(), -1, SQLITE_TRANSIENT);
+
+	std::string result;
+	if (sqlite3_step(stmt) == SQLITE_DONE) {
+		int user_id = sqlite3_last_insert_rowid(db); // This prolly needs to be changed
+        
+		result = "{\"request\": \"0\", \"message\": \"Success!\", \"user_id\": \"" + std::to_string(user_id) + "\"}";
+	} else {
+		result = "{\"request\": \"1\", \"message\": \"Failed to delete account.\"}";
+	}
+
+	sqlite3_finalize(stmt);
+
 	sqlite3_close(db);
 	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
@@ -283,7 +316,36 @@ std::string deleteAcc(std::map<std::string, std::string> params) {
 std::string buyTicket(std::map<std::string, std::string> params) {
 	sqlite3 *db;
 	int rc = sqlite3_open("movie_ticket_system.db", &db);
+	// check required fields. look above, for example
+	if (params.count("email") == 0 || params.count("password") == 0 || params.count("payment_details") == 0 || params.count("ticket_amount") == 0 || params.count("movie_id") == 0) { // if ANY of these dont exist, returns error
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\', \'password\', \'payment_details\', \'ticket_amount\', \'movie_id\'\"}";
+	}
 
+    // Please nested query... Please just work
+	std::string sql = "INSERT INTO Tickets(user_id, movie_id, quantity, purchase_time) VALUES ( (SELECT id FROM Users WHERE ? = email AND ? = password),?,?,?) ";
+	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
+
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(stmt, 1, params["email"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 2, params["password"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 3, params["ticket_amount"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 4, std::to_string(time(NULL)).c_str(), -1, SQLITE_TRANSIENT);
+
+	std::string result;
+	if (sqlite3_step(stmt) == SQLITE_DONE) {
+		int ticket_id = sqlite3_last_insert_rowid(db); // This prolly needs to be changed
+        
+		result = "{\"request\": \"0\", \"message\": \"Success!\", \"ticket_id\": \"" + std::to_string(ticket_id) + "\"}";
+	} else {
+		result = "{\"request\": \"1\", \"message\": \"Failed to purchase ticket.\"}";
+	}
+
+	sqlite3_finalize(stmt);
 	sqlite3_close(db);
 	return("{\"request\": \"0\",\"message\":\"Success!\"}");
 }
@@ -301,8 +363,44 @@ std::string getTicket(std::map<std::string, std::string> params) {
 	sqlite3 *db;
 	int rc = sqlite3_open("movie_ticket_system.db", &db);
 
+	// check required fields. look above, for example
+	if (params.count("email") == 0 || params.count("password") == 0) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\' and \'password\'\"}";
+	}
+
+    // Please nested query... Please just work
+	//std::string sql = "SELECT * FROM Tickets WHERE user_id = (SELECT id from Users WHERE password = ? AND email = ?)";
+	std::string sql = "SELECT * FROM Tickets WHERE user_id = ?";
+	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
+
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(stmt, 1, params["email"].c_str(), -1, SQLITE_TRANSIENT);
+	//sqlite3_bind_text(stmt, 2, params["password"].c_str(), -1, SQLITE_TRANSIENT);
+
+	std::string result;
+	if (sqlite3_step(stmt) == SQLITE_ROW) {
+		//int user_id = sqlite3_last_insert_rowid(db); // This prolly needs to be changed
+
+        const char* fuck = (const char*)sqlite3_column_text(stmt,0);
+        std::string fuckstr = (fuck) ? std::string(fuck) : "idk lol";
+
+        //std::cout << "BITCH: " << sqlite3_column_text(stmt, 0) << std::endl;
+		result = "{\"request\": \"0\", \"message\": \"Success!\", \"user_id\": \"" + fuckstr + "\"}";
+	} else {
+		result = "{\"request\": \"1\", \"message\": \"Failed to create account.\"}";
+	}
+
+	sqlite3_finalize(stmt);
+
 	sqlite3_close(db);
-	return("{\"request\": \"0\",\"message\":\"Success!\"}");
+	//return("{\"request\": \"0\",\"message\":\"Success!\"}");
+    return result;
+    
 }
 
 /*
@@ -352,9 +450,51 @@ std::string adminDel(std::map<std::string, std::string> params) {
  * - Fail/Success
  * - Movie ID
  */
+
+/*
+		CREATE TABLE IF NOT EXISTS Movies (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			showtime TEXT NOT NULL,
+			price_per_ticket REAL NOT NULL,
+			rating TEXT CHECK (rating IN ('G', 'PG', 'PG13', 'R', 'NC17')) NOT NULL
+		);
+        */
 std::string addMovie(std::map<std::string, std::string> params) {
 	sqlite3 *db;
 	int rc = sqlite3_open("movie_ticket_system.db", &db);
+
+	// check required fields. look above, for example
+	if (params.count("email") == 0 || params.count("password") == 0 || params.count("movie_name") == 0 || params.count("showtime") == 0 || params.count("price") == 0 || params.count("rating") == 0) { // if ANY of these dont exist, returns error
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\' and \'password\'\"}";
+	}
+
+	// had to learn sqlite for this.
+	std::string sql = "INSERT INTO Movies(name,showtime,price_per_ticket,rating) VALUES (?,?,?,?)";
+	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
+
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(stmt, 1, params["movie_name"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 2, params["showtime"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 3, params["price"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 4, params["rating"].c_str(), -1, SQLITE_TRANSIENT);
+
+	std::string result;
+	if (sqlite3_step(stmt) == SQLITE_DONE) {
+		int movie_id = sqlite3_last_insert_rowid(db); // This prolly needs to be changed
+        
+		result = "{\"request\": \"0\", \"message\": \"Success!\", \"movie_id\": \"" + std::to_string(movie_id) + "\"}";
+	} else {
+		result = "{\"request\": \"1\", \"message\": \"Failed to delete account.\"}";
+	}
+
+	sqlite3_finalize(stmt);
+
 
 	sqlite3_close(db);
 	return("{\"request\": \"0\",\"message\":\"Success!\"}");
