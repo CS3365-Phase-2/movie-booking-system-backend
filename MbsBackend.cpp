@@ -58,7 +58,7 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 			if(params.find("action") != params.end()) {
 				try {
 					body = 	requestTable[params["action"]](params);
-				} catch (const std::exception& exception) {
+				} catch (...) {
 					body = "{\"message\": \"INVALID ACTION: " + params["action"] + "\"}";
 				}
 			} else {
