@@ -8,6 +8,19 @@
 //################################################
 // handling requests
 
+std::unordered_map<std::string,std::function<std::string(std::map<std::string, std::string> params)>> requestTable = {
+	{"createacc",	createAcc},
+	{"delacc",	deleteAcc},
+	{"buyticket",	buyTicket},
+	{"getticket",	getTicket},
+	{"adminadd",	adminAdd},
+	{"admindel",	adminDel},
+	{"addmovie",	addMovie},
+	{"delmovie",	delMovie},
+	{"accdetails",	accDetails},
+	{"listmovies",	listMovies}
+};
+
 std::map<std::string, std::string> parseQuery(const std::string& query) {
 	std::map<std::string, std::string> params;
 	std::stringstream ss(query);
@@ -42,29 +55,10 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 			std::string query = target.substr(pos + 1);
 			auto params = parseQuery(query);
 
-            // I mean... it works...
 			if(params.find("action") != params.end()) {
-				if(params["action"] == "createacc") {
-					body = createAcc(params);
-				} else if(params["action"] == "delacc") {
-					body = deleteAcc(params);
-				} else if(params["action"] == "buyticket") {
-					body = buyTicket(params);
-				} else if(params["action"] == "getticket") {
-					body = getTicket(params);
-				} else if(params["action"] == "adminadd") {
-					body = adminAdd(params);
-				} else if(params["action"] == "admindel") {
-					body = adminDel(params);
-				} else if(params["action"] == "addmovie") {
-					body = addMovie(params);
-				} else if(params["action"] == "delmovie") {
-					body = delMovie(params);
-				} else if(params["action"] == "accdetails") {
-					body = accDetails(params);
-				} else if(params["action"] == "listmovies") {
-					body = listMovies(params);
-				} else {
+				try {
+					body = 	requestTable[params["action"]](params);
+				} catch (const std::exception& exception) {
 					body = "{\"message\": \"INVALID ACTION: " + params["action"] + "\"}";
 				}
 			} else {
