@@ -42,6 +42,7 @@ There are multiple different "actions" that can be used from the URL (for the av
 - `accdetails` (to show the details of the account)
   - Requires: Email/Username (Field: `email`)
   - Requires: Password (Field: `password`)
+  - Returns: User Details (Field: `user`)
   - Returns: Message (Field: `message`)
 
 For admins, there are a few other "actions" that can also be used:
