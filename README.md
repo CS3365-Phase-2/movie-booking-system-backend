@@ -8,6 +8,7 @@ When ran from the terminal, the default port for the webui is `http://localhost:
 curl "mbs.lavato.net?action=addmovie&moviename=12345678&showtime=12345678&price=12345678&rating=pg13&adminid=12345678&password=12345678"
 ```
 
+The return type is a JSON query.
 There are multiple different "actions" that can be used from the URL (for the average user:)
 - `createacc` (to create an account)
   - Requires: Email/Username (Field: `email`)
