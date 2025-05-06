@@ -63,6 +63,10 @@ There are multiple different "actions" that can be used from the URL (for the av
   - Requires: Movie ID (Field: `movies["id"]`)
   - Returns: Message (Field: `message`)
   - Returns: Message (Field: `reviews`)
+- `gettheater` (lists all reviews for a movie)
+  - Requires: Theater ID (Field: `theater_name`)
+  - Returns: Message (Field: `message`)
+  - Returns: Message (Field: `theater["theater_id"]`)
 
 
 For admins, there are a few other "actions" that can also be used:
@@ -96,6 +100,17 @@ For admins, there are a few other "actions" that can also be used:
   - Requires: Password (Field: `password`)
   - Returns: Message (Field: `message`)
   - Returns: Request (Field: `request`)
+- `addtheater` (lists all reviews for a movie)
+  - Requires: Email/Username (Field: `email`)
+  - Requires: Password (Field: `password`)
+  - Requires: Theater Name (Field: `theater_name`)
+  - Returns: Message (Field: `message`)
+  - Returns: Message (Field: `reviews`)
+- `deltheater` (lists all reviews for a movie)
+  - Requires: Email/Username (Field: `email`)
+  - Requires: Password (Field: `password`)
+  - Requires: Theater ID (Field: `theater_id`)
+  - Returns: Message (Field: `message`)
 
 How to build:
 -------------

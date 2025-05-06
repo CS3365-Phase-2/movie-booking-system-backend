@@ -28,3 +28,6 @@ std::string getMovie(std::map<std::string, std::string> params);
 std::string adminVerify(std::map<std::string, std::string> params);
 std::string reviewAdd(std::map<std::string, std::string> params);
 std::string reviewList(std::map<std::string, std::string> params);
+std::string addTheater(std::map<std::string, std::string> params);
+std::string delTheater(std::map<std::string, std::string> params);
+std::string getTheater(std::map<std::string, std::string> params);

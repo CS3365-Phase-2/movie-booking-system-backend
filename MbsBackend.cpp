@@ -26,7 +26,10 @@ std::unordered_map<std::string,std::function<std::string(std::map<std::string, s
 	{"getmovie",	getMovie},
 	{"checkadmin",	adminVerify},
 	{"reviewadd",	reviewAdd},
-	{"reviewlist",  reviewList}
+	{"reviewlist",  reviewList},
+	{"addtheater",  addTheater},
+	{"deltheater",  delTheater},
+	{"gettheater",  getTheater}
 };
 
 std::map<std::string, std::string> parseQuery(const std::string& query) {
@@ -1253,6 +1256,7 @@ std::string delTheater(std::map<std::string, std::string> params) {
  *
  * Returns:
  * - Fail/Success
+ * - Theater ID
  */
 std::string getTheater(std::map<std::string, std::string> params) {
     DBG_PRINT("User called addtheater\n");
@@ -1272,7 +1276,7 @@ std::string getTheater(std::map<std::string, std::string> params) {
 		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
 	}
 
-	sqlite3_bind_text(stmt, 1, params["theater_id"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 1, params["theater_name"].c_str(), -1, SQLITE_TRANSIENT);
 
 	std::string result;
 	if (sqlite3_step(stmt) == SQLITE_ROW) {
