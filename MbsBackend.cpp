@@ -1,6 +1,7 @@
 #include "MbsBackend.h"
 #include "Util.h"
 #include <argp.h>
+#include <sqlite3.h>
 #include <string>
 
 // Just to make things easier to change in the future
@@ -327,6 +328,7 @@ static inline bool isAdmin(std::string &email, std::string &password, sqlite3* d
     sqlite3_finalize(admin_stmt);
     return result;
 }
+
 /*
  * Requirements:
  * - Movie Id
@@ -352,6 +354,41 @@ static inline bool verifyMovie(std::string& id, sqlite3* db) {
     sqlite3_bind_text(stmt, 1, id.c_str(), -1, SQLITE_TRANSIENT);
 
     if(sqlite3_step(stmt) == SQLITE_ROW) result = true;
+    sqlite3_finalize(stmt);
+    return result;
+}
+
+/*
+ * Requirements:
+ * - Email
+ * - Password
+ * - db (MUST BE OPENED BEFOREHAND!)
+ *
+ * Returns:
+ * - bool
+ */
+// Small internal function to cut down on rewriting things
+static inline bool verifyPayment(std::string& email, std::string& password, sqlite3* db) {
+    if(!db) return false; // Check if the db exists
+    bool result = false;
+	sqlite3_stmt *stmt = nullptr;
+
+    std::string query = "SELECT payment_details FROM Users WHERE email = ? AND password = ?";
+
+    if(sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr)) {
+		sqlite3_close(db);
+        sqlite3_finalize(stmt);
+		return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, email.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_TRANSIENT);
+
+    // If a row is returned then we have a valid result
+    if(sqlite3_step(stmt) == SQLITE_ROW) 
+        if(sqlite3_column_text(stmt, 0))
+            result = true;
+
     sqlite3_finalize(stmt);
     return result;
 }
@@ -474,6 +511,11 @@ std::string buyTicket(std::map<std::string, std::string> params) {
 		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\', \'password\', \'ticket_amount\', \'movie_id\'\"}";
 	}
 
+    // Check if the movie is real
+    if(!verifyMovie(params["movie_id"], db)) 
+		return "{\"request\": \"1\", \"message\": \"Invalid movie id\"}";
+
+    /*
     // Check if the user has a payment method registered
 	std::string payment_query = "SELECT payment_details FROM Users WHERE email = ? AND password = ?";
 	sqlite3_stmt *payment_stmt = nullptr;
@@ -489,6 +531,10 @@ std::string buyTicket(std::map<std::string, std::string> params) {
     if(sqlite3_step(payment_stmt) == SQLITE_ROW)
         if(!sqlite3_column_text(payment_stmt, 0))  // If we got an empty column...
             return "{\"request\": \"1\", \"message\": \"User does not have a registered payment method.\"}";
+    */
+
+    if(!verifyPayment(params["email"], params["password"], db))
+        return "{\"request\": \"1\", \"message\": \"User does not have a registered payment method.\"}";
 
     // Please nested query... Please just work
 	std::string sql = "INSERT INTO Tickets(user_id, movie_id, quantity, purchase_time) VALUES ( (SELECT id FROM Users WHERE ? = email AND ? = password),?,?,?) ";
@@ -514,7 +560,7 @@ std::string buyTicket(std::map<std::string, std::string> params) {
 	}
 
 	sqlite3_finalize(stmt);
-    sqlite3_finalize(payment_stmt);
+    //sqlite3_finalize(payment_stmt);
 	sqlite3_close(db);
 
 	return result;
