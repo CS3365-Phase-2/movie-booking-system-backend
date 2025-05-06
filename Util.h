@@ -15,3 +15,9 @@
 
 #include <sqlite3.h>
 
+#ifdef DEBUG 
+#define DBG_PRINT(x) fprintf(stderr, x "\n")
+#else
+#define DBG_PRINT(x)
+#endif
+

@@ -16,6 +16,10 @@ $(TARGET): $(OBJ)
 %.o : %.cpp 
 	$(CXX) $< $(LIB) $(CFLAGS) -c -o $@ 
 
+debug: 
+	@echo -e '\e[1;33mWARNING\e[0;0m: Debug mode enabled'
+	$(MAKE) CFLAGS="$(CFLAGS) -DDEBUG"
+
 clean:
 	rm -f $(TARGET) $(OBJ)
 
