@@ -1,13 +1,20 @@
-CC	= g++
 TARGET	= MbsBackend
-SRC	= MbsBackend.cpp Util.cpp
-OBJ 	= ${SRC:.cpp=.o}
+SRC 	= $(wildcard *.cpp)
+OBJ 	= $(SRC:.cpp=.o)
+
+CFLAGS += -pipe
+CFLAGS += -Wall -Wextra -pedantic
+CFLAGS += -march=native -Ofast
 
 all: $(TARGET)
 
-${TARGET}: $(OBJ)
-	$(CC) -c $(SRC)
-	$(CC) -o $(TARGET) $(SRC) -lsqlite3
+# Link objects into target binary
+$(TARGET): $(OBJ)
+	$(CXX) -o $(TARGET) $(CFLAGS) $(OBJ) -lsqlite3
+
+# Generate Objects
+%.o : %.cpp 
+	$(CXX) $< $(LIB) $(CFLAGS) -c -o $@ 
 
 clean:
 	rm -f $(TARGET) $(OBJ)

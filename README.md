@@ -54,6 +54,15 @@ There are multiple different "actions" that can be used from the URL (for the av
   - Returns: Showtime (Field: `movies["showtime"]`)
   - Returns: Movie ID (Field: `movies["movie_id"]`)
   - Returns: Message (Field: `message`)
+- `reviewadd` (adds a review to a movie)
+  - Requires: User ID (Field: `user_id`)
+  - Requires: Movie ID (Field: `movie_id`)
+  - Requires: Review (Field: `review`)
+  - Returns: Message (Field: `message`)
+- `reviewlist` (lists all reviews for a movie)
+  - Requires: Movie ID (Field: `movies["id"]`)
+  - Returns: Message (Field: `message`)
+  - Returns: Message (Field: `reviews`)
 
 
 For admins, there are a few other "actions" that can also be used:

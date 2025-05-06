@@ -1,4 +1,5 @@
-#include "Util.cpp"
+#pragma once
+#include "Util.h"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -25,3 +26,5 @@ std::string listMovies(std::map<std::string, std::string> params);
 std::string verifyAcc(std::map<std::string, std::string> params);
 std::string getMovie(std::map<std::string, std::string> params);
 std::string adminVerify(std::map<std::string, std::string> params);
+std::string reviewAdd(std::map<std::string, std::string> params);
+std::string reviewList(std::map<std::string, std::string> params);
