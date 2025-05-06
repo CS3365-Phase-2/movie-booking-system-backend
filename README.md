@@ -44,6 +44,17 @@ There are multiple different "actions" that can be used from the URL (for the av
   - Requires: Password (Field: `password`)
   - Returns: User Details (Field: `user`)
   - Returns: Message (Field: `message`)
+- `verifyacc` (verifies the account)
+  - Requires: Email/Username (Field: `email`)
+  - Requires: Password (Field: `password`)
+  - Returns: User ID (Field: `user_id`)
+- `getmovie` (gets the movie details)
+  - Requires: Movie ID (Field: `movies["id"]`)
+  - Returns: Movie Name (Field: `movies["movie_name"]`)
+  - Returns: Showtime (Field: `movies["showtime"]`)
+  - Returns: Movie ID (Field: `movies["movie_id"]`)
+  - Returns: Message (Field: `message`)
+
 
 For admins, there are a few other "actions" that can also be used:
 - `adminadd` (adds admin role to a user)
@@ -71,6 +82,11 @@ For admins, there are a few other "actions" that can also be used:
   - Requires: Password (Field: `password`)
   - Requires: Movie ID (Field: `movie_id`)
   - Returns: Message (Field: `message`)
+- `verifyadmin` (checks if the admin account exists)
+  - Requires: Email/Username (Field: `email`)
+  - Requires: Password (Field: `password`)
+  - Returns: Message (Field: `message`)
+  - Returns: Request (Field: `request`)
 
 How to build:
 -------------
