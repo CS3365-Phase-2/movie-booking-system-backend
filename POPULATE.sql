@@ -2,11 +2,12 @@ INSERT INTO Movies (
     name,
     showtime,
     price_per_ticket,
-    rating
-) VALUES ('movie_1', '5:00', 3.02, 'G'),
-         ('movie_2', '4:00', 5.3, 'R'),
-         ('movie_3', '3:00', 5.02, 'PG13'),
-         ('another_movie', '3:00', 6.19, 'NC17');
+    rating,
+    theater_id 
+) VALUES ('movie_1', '5:00', 3.02, 'G', 1),
+         ('movie_2', '4:00', 5.3, 'R', 2),
+         ('movie_3', '3:00', 5.02, 'PG13', 1),
+         ('another_movie', '3:00', 6.19, 'NC17', 3);
 
 
 INSERT INTO Users (
@@ -23,3 +24,9 @@ INSERT INTO Users (
 INSERT INTO Admins (
    user_id 
 ) VALUES ((SELECT id FROM Users WHERE email = 'b' AND password = 'c'));
+
+INSERT INTO Theaters (
+    name
+) VALUES ('theater_1'),
+         ('theater_2'),
+         ('theater_3');
