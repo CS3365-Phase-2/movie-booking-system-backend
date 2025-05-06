@@ -614,6 +614,40 @@ std::string addMovie(std::map<std::string, std::string> params) {
 std::string delMovie(std::map<std::string, std::string> params) {
 	sqlite3 *db;
 	int rc = sqlite3_open("movie_ticket_system.db", &db);
+	/*
+	if (!params.count("email") || !params.count("password") || !params.count("movie_id")) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\' and \'password\'\"}";
+	}
+
+	std::string admin_query = "SELECT CASE WHEN user_id = id THEN 1 WHEN user_id <> id THEN 0 END AS is_admin FROM Admins FULL JOIN Users WHERE email = ? AND password = ?";
+
+	sqlite3_stmt *admin_stmt = nullptr; 
+
+
+	if(sqlite3_prepare_v2(db, admin_query.c_str(), -1, &admin_stmt, nullptr)) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(admin_stmt, 1, params["email"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(admin_stmt, 2, params["password"].c_str(), -1, SQLITE_TRANSIENT);
+
+	if(sqlite3_step(admin_stmt) == SQLITE_ROW) {
+		if(sqlite3_column_text(admin_stmt, 0)[0] == '0') return "{\"request\": \"1\", \"message\": \"Permission denied.\"}"; } else {
+		return "{\"request\": \"1\", \"message\": \"Failed to check if user is admin.\"}";
+	}
+
+	std::string sql = "INSERT INTO Movies(name,showtime,price_per_ticket,rating) VALUES (?,?,?,?)";
+	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(stmt, 1, params["movie_id"].c_str(), -1, SQLITE_TRANSIENT);
+
+	*/
 
 	sqlite3_close(db);
 	return("{\"request\": \"0\",\"message\":\"Success!\"}");
@@ -727,7 +761,7 @@ std::string listMovies(std::map<std::string, std::string> params) {
         } while((rc = sqlite3_step(stmt)) == SQLITE_ROW);
 
 		result = "{\"request\": \"0\", \"message\": \"Success!\", \"movies\": \"" + entries + "\"}";
-	} else result = "{\"request\": \"1\", \"message\": \"Failed to delete account.\"}";
+	}
 
 	sqlite3_finalize(stmt);
 
