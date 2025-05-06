@@ -10,6 +10,7 @@ void handleRequest(http::request<http::string_body> req, http::response<http::st
 static int sqLiteCallback(void *NotUsed, int argc, char **argv, char **azColName);
 bool sqLiteExecute(sqlite3 *db, const std::string &sql);
 int sqLiteInitialize();
+static int makeDefaultAdmin(sqlite3 *db);
 
 std::string createAcc(std::map<std::string, std::string> params); // to be changed
 std::string deleteAcc(std::map<std::string, std::string> params);
@@ -21,3 +22,6 @@ std::string addMovie(std::map<std::string, std::string> params);
 std::string delMovie(std::map<std::string, std::string> params);
 std::string accDetails(std::map<std::string, std::string> params);
 std::string listMovies(std::map<std::string, std::string> params);
+std::string verifyAcc(std::map<std::string, std::string> params);
+std::string getMovie(std::map<std::string, std::string> params);
+std::string adminVerify(std::map<std::string, std::string> params);
