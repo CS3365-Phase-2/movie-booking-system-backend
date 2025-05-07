@@ -320,8 +320,9 @@ static inline std::string parseSelect(sqlite3_stmt* stmt) {
             row += "\"" + std::string(col) + "\", ";
         }
         row[row.find_last_of(',')] = ' '; // Remove that last comma
-        entries += row + "}\n";
+        entries += row + "},\n";
     } while(sqlite3_step(stmt) == SQLITE_ROW);
+    entries[entries.find_last_of(',')] = ' '; // Remove that last comma
     entries += "]";
     return entries;
 }
@@ -1352,7 +1353,7 @@ std::string genReport(std::map<std::string, std::string> params) {
         )";
     } else {
         sql = R"(
-            SELECT H.name as 'theater', M.name, SUM(T.quantity) AS 'tickets_sold', SUM(T.id * M.price_per_ticket) AS 'total_revenue'
+            SELECT H.name AS 'theater', M.name, SUM(T.quantity) AS 'tickets_sold', SUM(T.id * M.price_per_ticket) AS 'total_revenue'
                 FROM Movies M
                     INNER JOIN Tickets T ON M.id = T.movie_id
                     INNER JOIN Theaters H ON H.id = M.theater_id
