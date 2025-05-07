@@ -12,25 +12,26 @@
 // handling requests
 
 std::unordered_map<std::string,std::function<std::string(std::map<std::string, std::string> params)>> requestTable = {
-	{"createacc",	createAcc},
-	{"delacc",	    deleteAcc},
-	{"buyticket",	buyTicket},
-	{"getticket",	getTicket},
-	{"adminadd",	adminAdd},
-	{"admindel",	adminDel},
-	{"addmovie",	addMovie},
-	{"delmovie",	delMovie},
-	{"accdetails",	accDetails},
-	{"listmovies",	listMovies},
-	{"verifyacc",	verifyAcc},
-	{"getmovie",	getMovie},
-	{"checkadmin",	adminVerify},
-	{"reviewadd",	reviewAdd},
-	{"reviewlist",  reviewList},
-	{"addtheater",  addTheater},
-	{"deltheater",  delTheater},
-	{"gettheater",  getTheater},
-	{"genreport",   genReport}
+	{"createacc",	    createAcc},
+	{"delacc",	        deleteAcc},
+	{"buyticket",	    buyTicket},
+	{"getticket",	    getTicket},
+	{"adminadd",	    adminAdd},
+	{"admindel",	    adminDel},
+	{"addmovie",	    addMovie},
+	{"delmovie",	    delMovie},
+	{"accdetails",	    accDetails},
+	{"listmovies",	    listMovies},
+	{"verifyacc",	    verifyAcc},
+	{"getmovie",	    getMovie},
+	{"checkadmin",	    adminVerify},
+	{"reviewadd",	    reviewAdd},
+	{"reviewlist",      reviewList},
+	{"addtheater",      addTheater},
+	{"deltheater",      delTheater},
+	{"gettheater",      getTheater},
+	{"genreport",       genReport},
+	{"updatepayment",   updatePayment}
 };
 
 std::map<std::string, std::string> parseQuery(const std::string& query) {
@@ -478,7 +479,7 @@ std::string createAcc(std::map<std::string, std::string> params) {
  * Requirements:
  * - Email
  * - Hashed Password
- * - Payment Details
+ * - Payment Details (optional)
  *
  * Returns:
  * - Fail/Success
@@ -493,13 +494,12 @@ std::string updatePayment(std::map<std::string, std::string> params) {
 	}
 
 	// check required fields. look above, for example
-	if (!params.count("email") || !params.count("password") || !params.count("payment_details")) { // if ANY of these dont exist, returns error
+	if (!params.count("email") || !params.count("password")) { // if ANY of these dont exist, returns error
 		sqlite3_close(db);
 		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\',\'password\', and \'name\'\"}";
 	}
 
-	// had to learn sqlite for this.
-	std::string sql = "INSERT INTO Users (name, email, password, payment_details) VALUES (?, ?, ?, ?);";
+	std::string sql = "UPDATE Users SET payment_details = ? WHERE email = ? AND password = ?";
 	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
 
 	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
@@ -507,10 +507,9 @@ std::string updatePayment(std::map<std::string, std::string> params) {
 		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
 	}
 
-	sqlite3_bind_text(stmt, 1, params["name"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 1, params.count("payment_details") ? params["payment_details"].c_str() : nullptr, -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, 2, params["email"].c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, 3, params["password"].c_str(), -1, SQLITE_TRANSIENT);
-	sqlite3_bind_text(stmt, 4, params.count("payment_details") ? params["payment_details"].c_str() : nullptr, -1, SQLITE_TRANSIENT);
 
 	std::string result;
 	if (sqlite3_step(stmt) == SQLITE_DONE) {

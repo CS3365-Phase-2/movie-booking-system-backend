@@ -76,6 +76,11 @@ There are multiple different "actions" that can be used from the URL (for the av
   - Requires: Theater ID (Field: `theater_name`)
   - Returns: Message (Field: `message`)
   - Returns: Message (Field: `theater["theater_id"]`)
+- `updatepayment` (updates the payment details for a user)
+  - Requires: Email (Field: `email`)
+  - Requires: Password (Field: `password`)
+  - Optional: Payment Details (Field: `payment_details`)
+  - Returns: Message (Field: `message`)
 
 
 For admins, there are a few other "actions" that can also be used:

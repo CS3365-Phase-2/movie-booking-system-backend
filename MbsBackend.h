@@ -32,3 +32,4 @@ std::string addTheater(std::map<std::string, std::string> params);
 std::string delTheater(std::map<std::string, std::string> params);
 std::string getTheater(std::map<std::string, std::string> params);
 std::string genReport(std::map<std::string, std::string> params);
+std::string updatePayment(std::map<std::string, std::string> params);
