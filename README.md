@@ -95,7 +95,7 @@ For admins, there are a few other "actions" that can also be used:
   - Requires: Password (Field: `password`)
   - Requires: Movie ID (Field: `movie_id`)
   - Returns: Message (Field: `message`)
-- `verifyadmin` (checks if the admin account exists)
+- `checkadmin` (checks if the admin account exists)
   - Requires: Email/Username (Field: `email`)
   - Requires: Password (Field: `password`)
   - Returns: Message (Field: `message`)
