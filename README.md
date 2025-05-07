@@ -42,8 +42,14 @@ There are multiple different "actions" that can be used from the URL (for the av
 - `accdetails` (to show the details of the account)
   - Requires: Email/Username (Field: `email`)
   - Requires: Password (Field: `password`)
-  - Returns: User Details (Field: `user`)
   - Returns: Message (Field: `message`)
+  - Returns: User Details (Field: `user`)
+    - Field: `id`
+    - Field: `name`
+    - Field: `email`
+    - Field: `password`
+    - Field: `payment_details`
+    - Optional Field: `is_admin`
 - `verifyacc` (verifies the account)
   - Requires: Email/Username (Field: `email`)
   - Requires: Password (Field: `password`)
@@ -55,7 +61,8 @@ There are multiple different "actions" that can be used from the URL (for the av
   - Returns: Movie ID (Field: `movies["movie_id"]`)
   - Returns: Message (Field: `message`)
 - `reviewadd` (adds a review to a movie)
-  - Requires: User ID (Field: `user_id`)
+  - Requires: Email (Field: `email`)
+  - Requires: Password (Field: `password`)
   - Requires: Movie ID (Field: `movie_id`)
   - Requires: Review (Field: `review`)
   - Returns: Message (Field: `message`)
@@ -63,6 +70,8 @@ There are multiple different "actions" that can be used from the URL (for the av
   - Requires: Movie ID (Field: `movies["id"]`)
   - Returns: Message (Field: `message`)
   - Returns: Message (Field: `reviews`)
+    - Field: `user_id`
+    - Field: `review`
 - `gettheater` (lists all reviews for a movie)
   - Requires: Theater ID (Field: `theater_name`)
   - Returns: Message (Field: `message`)
@@ -115,7 +124,12 @@ For admins, there are a few other "actions" that can also be used:
   - Requires: Email/Username (Field: `email`)
   - Optional: Theater ID (Field: `theater_id`)
   - Returns: Message (Field: `message`)
-  - Returns: Admin Report (Field: `report`)
+  - Returns: Admin Report (Field: `report[]`)
+    - Optional Field: `theater_id` 
+    - Field: `name`
+    - Field: `tickets_sold`
+    - Field: `total_revenue`
+
 
 How to build:
 -------------

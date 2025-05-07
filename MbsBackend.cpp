@@ -318,9 +318,10 @@ static inline std::string parseSelect(sqlite3_stmt* stmt) {
             row += "\"" + std::string(sqlite3_column_name(stmt, i)) + "\":";
             row += "\"" + std::string(col) + "\", ";
         }
-        entries += row + "},\n";
+        row[row.find_last_of(',')] = ' '; // Remove that last comma
+        entries += row + "}\n";
     } while(sqlite3_step(stmt) == SQLITE_ROW);
-    entries += "],";
+    entries += "]";
     return entries;
 }
 
@@ -442,6 +443,57 @@ std::string createAcc(std::map<std::string, std::string> params) {
 
 	// check required fields. look above, for example
 	if (!params.count("email") || !params.count("password") || !params.count("name")) { // if ANY of these dont exist, returns error
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\',\'password\', and \'name\'\"}";
+	}
+
+	// had to learn sqlite for this.
+	std::string sql = "INSERT INTO Users (name, email, password, payment_details) VALUES (?, ?, ?, ?);";
+	sqlite3_stmt *stmt = nullptr; // generate empty pointer in case no payment details
+
+	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
+	}
+
+	sqlite3_bind_text(stmt, 1, params["name"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 2, params["email"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 3, params["password"].c_str(), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, 4, params.count("payment_details") ? params["payment_details"].c_str() : nullptr, -1, SQLITE_TRANSIENT);
+
+	std::string result;
+	if (sqlite3_step(stmt) == SQLITE_DONE) {
+		int user_id = sqlite3_last_insert_rowid(db);
+		result = "{\"request\": \"0\", \"message\": \"Success!\", \"user_id\": \"" + std::to_string(user_id) + "\"}";
+	} else {
+		result = "{\"request\": \"1\", \"message\": \"Failed to create account.\"}";
+	}
+
+	sqlite3_finalize(stmt);
+	sqlite3_close(db);
+	return result;
+}
+
+/*
+ * Requirements:
+ * - Email
+ * - Hashed Password
+ * - Payment Details
+ *
+ * Returns:
+ * - Fail/Success
+ */
+std::string updatePayment(std::map<std::string, std::string> params) {
+    DBG_PRINT("User called updatepayment\n");
+	sqlite3 *db;
+
+	if (sqlite3_open(DATABASE_FILE, &db)) { //try to open the database
+		sqlite3_close(db);
+		return "{\"request\": \"1\", \"message\": \"Unable to open database.\"}"; // if fails, returns error
+	}
+
+	// check required fields. look above, for example
+	if (!params.count("email") || !params.count("password") || !params.count("payment_details")) { // if ANY of these dont exist, returns error
 		sqlite3_close(db);
 		return "{\"request\": \"1\", \"message\": \"Missing fields: Needs \'email\',\'password\', and \'name\'\"}";
 	}
@@ -843,11 +895,12 @@ std::string accDetails(std::map<std::string, std::string> params) {
     }
 
     if(!isAdmin(params["email"], params["password"], db))
-		return "{\"request\": \"1\", \"message\": \"Permission denied.\"}";
+        sql = "SELECT * FROM Users WHERE email = ? AND password = ?";
+    else
+        sql = "SELECT U.*, CASE WHEN U.id = A.user_id THEN 1 WHEN U.id <> A.user_id THEN 0 END AS is_admin FROM Users U INNER JOIN Admins A ON A.user_id = U.id WHERE U.email = ? AND U.password = ?";
 
 	sqlite3_stmt *stmt = nullptr;
 
-    sql = "SELECT U.*, CASE WHEN U.id = A.user_id THEN 1 WHEN U.id <> A.user_id THEN 0 END AS is_admin FROM Users U FULL JOIN Admins A WHERE email = ? AND password = ?";
 
 	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
 		sqlite3_close(db);
