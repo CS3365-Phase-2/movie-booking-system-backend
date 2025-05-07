@@ -966,7 +966,7 @@ std::string listMovies(std::map<std::string, std::string> params) {
     rc = sqlite3_step(stmt);
 	if (rc == SQLITE_ROW) {
         std::string entries = parseSelect(stmt);
-		result = "{\"request\": \"0\", \"message\": \"Success!\", \"movies\": \"" + entries + "\"}";
+		result = "{\"request\": \"0\", \"message\": \"Success!\", \"movies\": " + entries + "}";
 	} else result = "{\"request\": \"1\", \"message\": \"Failed to get movie info.\"}";
 
 	sqlite3_finalize(stmt);
@@ -1330,7 +1330,6 @@ std::string genReport(std::map<std::string, std::string> params) {
     DBG_PRINT("User called genreport\n");
 	sqlite3 *db;
     std::string sql;
-    int fields = 0;
 	int rc = sqlite3_open(DATABASE_FILE, &db);
 
 	if (!params.count("email") || !params.count("password")) { // if ANY of these dont exist, returns error
@@ -1343,7 +1342,6 @@ std::string genReport(std::map<std::string, std::string> params) {
 		return "{\"request\": \"1\", \"message\": \"Permission denied.\"}";
 
     if(!params.count("theater_id")) {
-        fields = 3;
         sql = R"(
             SELECT M.name, SUM(T.quantity) AS 'tickets_sold', SUM(T.id * M.price_per_ticket) AS 'total_revenue'
                 FROM Movies M
@@ -1353,9 +1351,8 @@ std::string genReport(std::map<std::string, std::string> params) {
                 ORDER BY total DESC;
         )";
     } else {
-        fields = 4;
         sql = R"(
-            SELECT H.name, M.name, SUM(T.quantity) AS 'tickets_sold', SUM(T.id * M.price_per_ticket) AS 'total_revenue'
+            SELECT H.name as 'theater', M.name, SUM(T.quantity) AS 'tickets_sold', SUM(T.id * M.price_per_ticket) AS 'total_revenue'
                 FROM Movies M
                     INNER JOIN Tickets T ON M.id = T.movie_id
                     INNER JOIN Theaters H ON H.id = M.theater_id
@@ -1367,7 +1364,9 @@ std::string genReport(std::map<std::string, std::string> params) {
 
 	sqlite3_stmt *stmt = nullptr;
 
-	if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
+	if ((rc =sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr)) != SQLITE_OK) {
+        std::cout << rc << "\n";
+        std::cout << sql << "\n";
 		sqlite3_close(db);
 		return "{\"request\": \"1\", \"message\": \"Failed to prepare statement.\"}";
 	}
