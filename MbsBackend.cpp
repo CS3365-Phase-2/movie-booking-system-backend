@@ -306,20 +306,21 @@ static int makeDefaultAdmin(sqlite3 *db) {
  * - stmt (must have sqlite3_step() called beforehand and checked if its result == SQLITE_ROW)
  *
  * Returns:
- * - string of the entries in the query as a json with the key being the index of the rows and the fields being separated by spaces
+ * - 
  */
 static inline std::string parseSelect(sqlite3_stmt* stmt) {
-    std::string entries = "{\n";
+    std::string entries = "[\n";
     int j = 0;
     do {
-        std::string row = " \"" + std::to_string(j++) + "\": \"";
+        std::string row = "{ ";
         char* col = NULL;
-        for(int i = 0 ; (col = ((char*)sqlite3_column_text(stmt,i))); i++) 
-            row += std::string(col) + " ";
-        row += "\"";
-        entries += row + ",\n";
+        for(int i = 0 ; (col = ((char*)sqlite3_column_text(stmt,i))); i++) {
+            row += "\"" + std::string(sqlite3_column_name(stmt, i)) + "\":";
+            row += "\"" + std::string(col) + "\", ";
+        }
+        entries += row + "},\n";
     } while(sqlite3_step(stmt) == SQLITE_ROW);
-    entries += "}";
+    entries += "],";
     return entries;
 }
 
