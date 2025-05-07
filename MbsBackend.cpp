@@ -1293,7 +1293,7 @@ std::string genReport(std::map<std::string, std::string> params) {
     if(!params.count("theater_id")) {
         fields = 3;
         sql = R"(
-            SELECT M.name, SUM(T.quantity), SUM(T.id * M.price_per_ticket) AS 'total'
+            SELECT M.name, SUM(T.quantity) AS 'tickets_sold', SUM(T.id * M.price_per_ticket) AS 'total_revenue'
                 FROM Movies M
                     INNER JOIN Tickets T ON M.id = T.movie_id
                     INNER JOIN Theaters H ON H.id = M.theater_id
@@ -1303,7 +1303,7 @@ std::string genReport(std::map<std::string, std::string> params) {
     } else {
         fields = 4;
         sql = R"(
-            SELECT H.name, M.name, SUM(T.quantity), SUM(T.id * M.price_per_ticket) AS 'total'
+            SELECT H.name, M.name, SUM(T.quantity) AS 'tickets_sold', SUM(T.id * M.price_per_ticket) AS 'total_revenue'
                 FROM Movies M
                     INNER JOIN Tickets T ON M.id = T.movie_id
                     INNER JOIN Theaters H ON H.id = M.theater_id
