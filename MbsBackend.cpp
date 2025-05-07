@@ -1348,7 +1348,7 @@ std::string genReport(std::map<std::string, std::string> params) {
                     INNER JOIN Tickets T ON M.id = T.movie_id
                     INNER JOIN Theaters H ON H.id = M.theater_id
                 GROUP BY M.name
-                ORDER BY total DESC;
+                ORDER BY total_revenue DESC;
         )";
     } else {
         sql = R"(
@@ -1358,7 +1358,7 @@ std::string genReport(std::map<std::string, std::string> params) {
                     INNER JOIN Theaters H ON H.id = M.theater_id
                 WHERE H.id = ?
                 GROUP BY M.name
-                ORDER BY total DESC;
+                ORDER BY total_revenue DESC;
         )";
     }
 
