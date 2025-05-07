@@ -303,6 +303,28 @@ static int makeDefaultAdmin(sqlite3 *db) {
 
 /*
  * Requirements:
+ * - stmt (must have sqlite3_step() called beforehand and checked if its result == SQLITE_ROW)
+ *
+ * Returns:
+ * - string of the entries in the query as a json with the key being the index of the rows and the fields being separated by spaces
+ */
+static inline std::string parseSelect(sqlite3_stmt* stmt) {
+    std::string entries = "{\n";
+    int j = 0;
+    do {
+        std::string row = " \"" + std::to_string(j++) + "\": \"";
+        char* col = NULL;
+        for(int i = 0 ; (col = ((char*)sqlite3_column_text(stmt,i))); i++) 
+            row += std::string(col) + " ";
+        row += "\"";
+        entries += row + ",\n";
+    } while(sqlite3_step(stmt) == SQLITE_ROW);
+    entries += "}";
+    return entries;
+}
+
+/*
+ * Requirements:
  * - Email
  * - Password
  * - db (MUST BE OPENED BEFOREHAND!)
@@ -594,17 +616,7 @@ std::string getTicket(std::map<std::string, std::string> params) {
     std::string result;
     rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
-        std::string entries = "{\n";
-        int j = 0;
-        do {
-            std::string row = " \"" + std::to_string(j++) + "\": \"";
-            for(int i = 0; i < 5; i++)
-                row += std::string((const char*)sqlite3_column_text(stmt,i)) + " ";
-            row += "\"";
-            entries += row + ",\n";
-        } while((rc = sqlite3_step(stmt)) == SQLITE_ROW);
-        entries += "}";
-
+        std::string entries = parseSelect(stmt);
         result = "{\"request\": \"0\", \"message\": \"Success!\", \"tickets\": " + entries + "}";
     } else {
         result = "{\"request\": \"1\", \"message\": \"Failed to find tickets.\"}";
@@ -846,15 +858,7 @@ std::string accDetails(std::map<std::string, std::string> params) {
 
     rc = sqlite3_step(stmt);
 	if (rc == SQLITE_ROW) {
-        std::string entries = "";
-
-        do {
-            std::string row = "";
-            for(char i = 0; i < 6; i++)
-                row += std::string((const char*)sqlite3_column_text(stmt,i)) + "\t";
-            entries += row + "\n";
-        } while((rc = sqlite3_step(stmt)) == SQLITE_ROW);
-
+        std::string entries = parseSelect(stmt);
 		result = "{\"request\": \"0\", \"message\": \"Success!\", \"user\": \"" + entries + "\"}";
 	} else result = "{\"request\": \"1\", \"message\": \"Failed to get account info.\"}";
 
@@ -908,15 +912,7 @@ std::string listMovies(std::map<std::string, std::string> params) {
 
     rc = sqlite3_step(stmt);
 	if (rc == SQLITE_ROW) {
-        std::string entries = "";
-
-        do {
-            std::string row = "";
-            for(char i = 0; i < 6; i++)
-                row += std::string((const char*)sqlite3_column_text(stmt,i)) + "\t";
-            entries += row + "\n";
-        } while((rc = sqlite3_step(stmt)) == SQLITE_ROW);
-
+        std::string entries = parseSelect(stmt);
 		result = "{\"request\": \"0\", \"message\": \"Success!\", \"movies\": \"" + entries + "\"}";
 	} else result = "{\"request\": \"1\", \"message\": \"Failed to get movie info.\"}";
 
@@ -1127,13 +1123,7 @@ std::string reviewList(std::map<std::string, std::string> params) {
 
     rc = sqlite3_step(stmt);
 	if (rc == SQLITE_ROW) {
-        std::string entries = "";
-        do {
-            std::string row = "";
-            for(char i = 0; i < 2; i++)
-                row += std::string((const char*)sqlite3_column_text(stmt,i)) + "\t" ;
-            entries += row + "\n";
-        } while((rc = sqlite3_step(stmt)) == SQLITE_ROW);
+        std::string entries = parseSelect(stmt);
 		result = "{\"request\": \"0\", \"message\": \"Success!\", \"reviews\": \"" + entries + "\"}";
 	} else result = "{\"request\": \"1\", \"message\": \"Failed to select reviews.\"}";
 
@@ -1335,17 +1325,7 @@ std::string genReport(std::map<std::string, std::string> params) {
     std::string result;
     rc = sqlite3_step(stmt);
     if (rc == SQLITE_ROW) {
-        std::string entries = "{\n";
-        int j = 0;
-        do {
-            std::string row = " \"" + std::to_string(j++) + "\": \"";
-            for(int i = 0; i < fields; i++)
-                row += std::string((const char*)sqlite3_column_text(stmt,i)) + " ";
-            row += "\"";
-            entries += row + ",\n";
-        } while((rc = sqlite3_step(stmt)) == SQLITE_ROW);
-        entries += "}";
-
+        std::string entries = parseSelect(stmt);
         result = "{\"request\": \"0\", \"message\": \"Success!\", \"report\": " + entries + "}";
     } else {
         result = "{\"request\": \"1\", \"message\": \"Failed to generate report.\"}";
