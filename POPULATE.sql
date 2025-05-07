@@ -30,3 +30,16 @@ INSERT INTO Theaters (
 ) VALUES ('theater_1'),
          ('theater_2'),
          ('theater_3');
+
+INSERT INTO Tickets (
+    user_id,
+    movie_id,
+    quantity,
+    purchase_time
+) 
+VALUES
+( 1, 1, 3, 0 ),
+( 2, 1, 3, 0 ),
+( 1, 2, 1, 0 ),
+( 3, 1, 3, 0 );
+
